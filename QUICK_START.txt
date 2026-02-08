@@ -1,0 +1,106 @@
+RECEIPT TAX TRACKER AI - QUICK START
+=====================================
+
+1. SETUP FIREBASE PROJECT
+   - Go to console.firebase.google.com
+   - Create new project
+   - Enable Firestore, Storage, Authentication, Functions
+
+2. INSTALL & CONFIGURE
+   npm install -g firebase-tools
+   firebase login
+   cd expense-tracker
+   
+   Update Firebase config in:
+   - public/auth.js
+   - public/app.js
+   
+   Replace YOUR_API_KEY, YOUR_PROJECT_ID, etc.
+
+3. INSTALL DEPENDENCIES
+   cd functions
+   npm install
+   cd ..
+
+4. SET ENVIRONMENT VARIABLES (OPTIONAL)
+   firebase functions:config:set openai.api_key="sk-..."
+   
+   (Without OpenAI key, system uses keyword-based categorization)
+
+5. DEPLOY
+   firebase deploy
+   
+   Or step-by-step:
+   firebase deploy --only firestore:rules
+   firebase deploy --only storage:rules
+   firebase deploy --only functions
+   firebase deploy --only hosting
+
+6. ENABLE AUTHENTICATION
+   Firebase Console > Authentication > Sign-in method
+   - Enable Google
+   - Enable Email/Password
+
+7. ACCESS YOUR APP
+   https://YOUR_PROJECT_ID.web.app
+
+FEATURES INCLUDED:
+==================
+✓ Google & Email login
+✓ Manual receipt upload
+✓ OCR text extraction
+✓ AI category prediction (or keyword fallback)
+✓ Tax relief tracking (Malaysia categories)
+✓ Monthly insights generation
+✓ Anomaly detection
+✓ CSV/Excel export
+✓ PWA with offline support
+✓ WhatsApp integration (optional)
+
+FOLDER STRUCTURE:
+=================
+functions/          - Cloud Functions (backend)
+  ├── index.js                  - Main functions entry
+  ├── ocrEngine.js              - OCR processing
+  ├── aiCategorizer.js          - AI categorization
+  ├── taxEngine.js              - Tax calculations
+  ├── anomalyDetector.js        - Duplicate detection
+  ├── insightsGenerator.js      - Monthly insights
+  ├── whatsappWebhook.js        - WhatsApp integration
+  └── exportEngine.js           - CSV/Excel export
+
+public/             - Frontend (PWA)
+  ├── index.html                - Login page
+  ├── dashboard.html            - Main dashboard
+  ├── upload.html               - Receipt upload
+  ├── insights.html             - Tax insights
+  ├── app.js                    - Main app logic
+  ├── auth.js                   - Authentication
+  ├── service-worker.js         - Offline support
+  └── manifest.json             - PWA config
+
+firestore.rules     - Database security
+storage.rules       - File storage security
+firebase.json       - Firebase configuration
+
+TESTING:
+========
+1. Deploy the app
+2. Visit your URL
+3. Sign up with email or Google
+4. Upload a receipt image
+5. Wait for processing (10-30 seconds)
+6. View categorized receipt on dashboard
+
+TROUBLESHOOTING:
+================
+- Functions not working? Check Node.js version (needs 18+)
+- Auth errors? Verify Firebase config in auth.js/app.js
+- Upload fails? Check storage.rules are deployed
+- No insights? Upload at least 3 receipts
+
+For detailed instructions, see:
+- README.md
+- DEPLOYMENT.md
+
+Support: Create issue on GitHub or contact support

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <title>Dashboard - Receipt Tax Tracker</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            color: #1f2937;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .stat-subtext {
+            color: #10b981;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        
+        .chart-container {
+            height: 300px;
+            background: #f9fafb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+        }
+        
+        .insights-list {
+            list-style: none;
+        }
+        
+        .insight-item {
+            padding: 1rem;
+            border-left: 4px solid #4F46E5;
+            background: #EEF2FF;
+            margin-bottom: 0.75rem;
+            border-radius: 4px;
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .insight-text {
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+        
+        .alerts {
+            list-style: none;
+        }
+        
+        .alert-item {
+            padding: 1rem;
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            margin-bottom: 0.75rem;
+            border-radius: 4px;
+        }
+        
+        .alert-high {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+        }
+        
+        .alert-medium {
+            background: #fff7ed;
+            border-left-color: #f59e0b;
+        }
+        
+        .alert-low {
+            background: #f0fdf4;
+            border-left-color: #10b981;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.75rem;
+        }
+        
+        .nav-item.active {
+            color: #4F46E5;
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #4F46E5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>📊 Dashboard</h1>
+            <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading dashboard...</p>
+        </div>
+        
+        <div id="dashboard-content" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Receipts (2026)</div>
+                    <div class="stat-value" id="total-receipts">0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">Total Spent</div>
+                    <div class="stat-value" id="total-spent">RM 0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">Tax Eligible</div>
+                    <div class="stat-value" id="tax-eligible">RM 0</div>
+                    <div class="stat-subtext" id="tax-percentage">0% of total</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">Total Claimable</div>
+                    <div class="stat-value" id="total-claimable">RM 0</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Monthly Spending Trend</div>
+                <div class="chart-container" id="chart">
+                    Chart will be rendered here
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">💡 AI Insights</div>
+                <ul class="insights-list" id="insights-list">
+                    <li class="insight-item">
+                        <div class="insight-title">No insights yet</div>
+                        <div class="insight-text">Upload more receipts to generate insights</div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">⚠️ Alerts</div>
+                <ul class="alerts" id="alerts-list">
+                    <li class="insight-item">
+                        <div class="insight-text">No alerts at this time</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="bottom-nav">
+        <a href="/dashboard.html" class="nav-item active">
+            <div class="nav-icon">📊</div>
+            <span>Dashboard</span>
+        </a>
+        <a href="/upload.html" class="nav-item">
+            <div class="nav-icon">📸</div>
+            <span>Upload</span>
+        </a>
+        <a href="/insights.html" class="nav-item">
+            <div class="nav-icon">💡</div>
+            <span>Insights</span>
+        </a>
+    </nav>
+    
+    <script type="module" src="/app.js"></script>
+</body>
+</html>

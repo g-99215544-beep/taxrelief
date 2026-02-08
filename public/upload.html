@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <title>Upload Receipt - Receipt Tax Tracker</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .upload-zone {
+            border: 3px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f9fafb;
+        }
+        
+        .upload-zone:hover,
+        .upload-zone.drag-over {
+            border-color: #4F46E5;
+            background: #EEF2FF;
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text {
+            color: #4b5563;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-subtext {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .preview-container {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-btn {
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .upload-btn:hover:not(:disabled) {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+        
+        .upload-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #4F46E5;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .recent-uploads {
+            list-style: none;
+        }
+        
+        .upload-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .upload-item:last-child {
+            border-bottom: none;
+        }
+        
+        .upload-icon-small {
+            font-size: 2rem;
+        }
+        
+        .upload-info {
+            flex: 1;
+        }
+        
+        .upload-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .upload-meta {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .upload-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-processing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.75rem;
+        }
+        
+        .nav-item.active {
+            color: #4F46E5;
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+        
+        .camera-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .camera-btn:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>📸 Upload Receipt</h1>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <button class="camera-btn" id="camera-btn">
+                📷 Take Photo
+            </button>
+            
+            <div class="upload-zone" id="upload-zone">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drag & drop your receipt here</div>
+                <div class="upload-subtext">or click to browse (Image or PDF, max 10MB)</div>
+            </div>
+            
+            <input type="file" id="file-input" accept="image/*,application/pdf" multiple>
+            
+            <div class="preview-container" id="preview-container">
+                <img id="preview-image" class="preview-image" alt="Receipt preview">
+                <button class="upload-btn" id="upload-btn">Upload Receipt</button>
+                <div class="progress-bar" id="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="success-message" id="success-message">
+                    ✓ Receipt uploaded successfully! Processing...
+                </div>
+                <div class="error-message" id="error-message"></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 style="margin-bottom: 1rem; color: #1f2937;">Recent Uploads</h2>
+            <ul class="recent-uploads" id="recent-uploads">
+                <li style="text-align: center; color: #6b7280; padding: 2rem;">
+                    No uploads yet
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <nav class="bottom-nav">
+        <a href="/dashboard.html" class="nav-item">
+            <div class="nav-icon">📊</div>
+            <span>Dashboard</span>
+        </a>
+        <a href="/upload.html" class="nav-item active">
+            <div class="nav-icon">📸</div>
+            <span>Upload</span>
+        </a>
+        <a href="/insights.html" class="nav-item">
+            <div class="nav-icon">💡</div>
+            <span>Insights</span>
+        </a>
+    </nav>
+    
+    <script type="module" src="/app.js"></script>
+</body>
+</html>
