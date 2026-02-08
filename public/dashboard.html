@@ -196,7 +196,7 @@
             padding: 2rem;
             color: #6b7280;
         }
-        
+
         .spinner {
             border: 3px solid #f3f4f6;
             border-top: 3px solid #4F46E5;
@@ -206,10 +206,103 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 1rem;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        .receipt-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .receipt-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .receipt-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .receipt-thumb {
+            width: 100%;
+            height: 180px;
+            background: #f9fafb;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .receipt-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .receipt-placeholder {
+            font-size: 3rem;
+        }
+
+        .receipt-details {
+            padding: 0.75rem 1rem;
+        }
+
+        .receipt-merchant {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .receipt-amount {
+            color: #4F46E5;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .receipt-date {
+            color: #6b7280;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .receipt-category {
+            display: inline-block;
+            background: #EEF2FF;
+            color: #4F46E5;
+            padding: 0.15rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .upload-status {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-processing {
+            background: #fef3c7;
+            color: #92400e;
         }
     </style>
 </head>
@@ -252,9 +345,14 @@
             </div>
             
             <div class="card">
-                <div class="card-title">Monthly Spending Trend</div>
-                <div class="chart-container" id="chart">
-                    Chart will be rendered here
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Your Receipts</span>
+                    <a href="/upload.html" style="font-size: 0.9rem; color: #4F46E5; text-decoration: none; font-weight: 500;">+ Upload</a>
+                </div>
+                <div class="receipt-gallery-grid" id="receipt-gallery">
+                    <div style="text-align: center; color: #6b7280; padding: 2rem; grid-column: 1 / -1;">
+                        Loading receipts...
+                    </div>
                 </div>
             </div>
             

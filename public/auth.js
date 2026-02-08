@@ -3,12 +3,12 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPasswor
 import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyD7WspCtCQ_pqlUUFbdlIdFa2OgU7yX73A",
+    authDomain: "studio-715840410-f5be3.firebaseapp.com",
+    projectId: "studio-715840410-f5be3",
+    storageBucket: "studio-715840410-f5be3.firebasestorage.app",
+    messagingSenderId: "358029699297",
+    appId: "1:358029699297:web:6187a14904465990f4efa0"
 };
 
 const app = initializeApp(firebaseConfig);
