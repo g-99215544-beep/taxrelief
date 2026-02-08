@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <title>Insights - Receipt Tax Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .export-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .category-card {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .category-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-amount {
+            font-size: 1.5rem;
+            color: #4F46E5;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .category-limit {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .progress-bar-container {
+            background: #e5e7eb;
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: #4F46E5;
+            transition: width 0.3s;
+        }
+        
+        .recommendations {
+            list-style: none;
+        }
+        
+        .recommendation-item {
+            padding: 1rem;
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
+            margin-bottom: 0.75rem;
+            border-radius: 4px;
+        }
+        
+        .recommendation-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .recommendation-text {
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+        
+        .trends {
+            list-style: none;
+        }
+        
+        .trend-item {
+            padding: 1rem;
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            margin-bottom: 0.75rem;
+            border-radius: 4px;
+        }
+        
+        .trend-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .trend-increase {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .trend-decrease {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .export-section {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .export-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .export-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .export-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .export-desc {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .export-button {
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+        }
+        
+        .export-button:hover {
+            background: #4338ca;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.75rem;
+        }
+        
+        .nav-item.active {
+            color: #4F46E5;
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>💡 Insights & Reports</h1>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-title">Tax Category Breakdown (2026)</div>
+            <div class="category-grid" id="category-grid">
+                <div class="loading">Loading categories...</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">📈 Spending Trends</div>
+            <ul class="trends" id="trends-list">
+                <li class="loading">Loading trends...</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">💰 Recommendations</div>
+            <ul class="recommendations" id="recommendations-list">
+                <li class="loading">Loading recommendations...</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">📥 Export Data</div>
+            <div class="export-section">
+                <div class="export-card">
+                    <div class="export-icon">📊</div>
+                    <div class="export-title">CSV Export</div>
+                    <div class="export-desc">Download all receipts as CSV for spreadsheet analysis</div>
+                    <button class="export-button" id="export-csv">Download CSV</button>
+                </div>
+                <div class="export-card">
+                    <div class="export-icon">📑</div>
+                    <div class="export-title">Excel Export</div>
+                    <div class="export-desc">Download detailed report with charts and summaries</div>
+                    <button class="export-button" id="export-excel">Download Excel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <div class="nav-icon">📊</div>
+            <span>Dashboard</span>
+        </a>
+        <a href="upload.html" class="nav-item">
+            <div class="nav-icon">📸</div>
+            <span>Upload</span>
+        </a>
+        <a href="insights.html" class="nav-item active">
+            <div class="nav-icon">💡</div>
+            <span>Insights</span>
+        </a>
+    </nav>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
