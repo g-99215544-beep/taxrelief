@@ -15,7 +15,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -24,7 +24,7 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .container {
             background: white;
             padding: 3rem;
@@ -34,90 +34,77 @@
             width: 90%;
             text-align: center;
         }
-        
+
         h1 {
             color: #1f2937;
             font-size: 2rem;
             margin-bottom: 0.5rem;
         }
-        
+
         .subtitle {
             color: #6b7280;
             margin-bottom: 2rem;
         }
-        
-        .auth-buttons {
+
+        .user-buttons {
             display: flex;
-            flex-direction: column;
             gap: 1rem;
+            margin-bottom: 2rem;
         }
-        
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
+
+        .user-btn {
+            flex: 1;
+            padding: 2rem 1rem;
+            border: 3px solid #e5e7eb;
+            border-radius: 16px;
+            background: white;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-btn:hover {
+            border-color: #4F46E5;
+            background: #EEF2FF;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.2);
+        }
+
+        .user-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            font-size: 2rem;
         }
-        
-        .btn-google {
-            background: white;
+
+        .avatar-sufian {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .avatar-hanis {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+        }
+
+        .user-name {
+            font-size: 1.1rem;
+            font-weight: 700;
             color: #1f2937;
-            border: 2px solid #e5e7eb;
         }
-        
-        .btn-google:hover {
-            background: #f9fafb;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .btn-email {
-            background: #4F46E5;
-            color: white;
-        }
-        
-        .btn-email:hover {
-            background: #4338ca;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
-        }
-        
-        .divider {
-            margin: 1.5rem 0;
-            color: #9ca3af;
-            position: relative;
-        }
-        
-        .divider::before,
-        .divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 1px;
-            background: #e5e7eb;
-        }
-        
-        .divider::before {
-            left: 0;
-        }
-        
-        .divider::after {
-            right: 0;
-        }
-        
+
         .features {
-            margin-top: 2rem;
             text-align: left;
         }
-        
+
         .feature {
             display: flex;
             align-items: center;
@@ -126,7 +113,7 @@
             color: #4b5563;
             font-size: 0.9rem;
         }
-        
+
         .feature-icon {
             width: 24px;
             height: 24px;
@@ -138,141 +125,55 @@
             color: #4F46E5;
             flex-shrink: 0;
         }
-        
-        #email-form {
-            display: none;
-            margin-top: 1rem;
-        }
-        
-        .input-group {
-            margin-bottom: 1rem;
-        }
-        
-        input {
-            width: 100%;
-            padding: 0.875rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: #4F46E5;
-        }
-        
-        .error {
-            color: #ef4444;
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-            display: none;
-        }
-        
-        .loading {
-            display: none;
-            margin-top: 1rem;
-        }
-        
-        .spinner {
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid #4F46E5;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .install-prompt {
-            background: #EEF2FF;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-top: 1.5rem;
-            display: none;
-        }
-        
-        .install-prompt button {
-            margin-top: 0.5rem;
-            width: 100%;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📱 Receipt Tax Tracker</h1>
-        <p class="subtitle">AI-powered tax receipt management</p>
-        
-        <div class="auth-buttons">
-            <button class="btn btn-google" id="google-login">
-                <svg width="18" height="18" viewBox="0 0 18 18">
-                    <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
-                    <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
-                    <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/>
-                    <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z"/>
-                </svg>
-                Continue with Google
+        <h1>Receipt Tax Tracker</h1>
+        <p class="subtitle">Who's using the app?</p>
+
+        <div class="user-buttons">
+            <button class="user-btn" id="btn-sufian">
+                <div class="user-avatar avatar-sufian">S</div>
+                <div class="user-name">SUFIAN</div>
             </button>
-            
-            <div class="divider">or</div>
-            
-            <button class="btn btn-email" id="email-toggle">
-                📧 Continue with Email
+            <button class="user-btn" id="btn-hanis">
+                <div class="user-avatar avatar-hanis">H</div>
+                <div class="user-name">HANIS</div>
             </button>
         </div>
-        
-        <form id="email-form">
-            <div class="input-group">
-                <input type="email" id="email" placeholder="Email address" required>
-            </div>
-            <div class="input-group">
-                <input type="password" id="password" placeholder="Password (min 6 characters)" required minlength="6">
-            </div>
-            <button type="submit" class="btn btn-email">Sign In / Sign Up</button>
-            <div class="error" id="auth-error"></div>
-        </form>
-        
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-        </div>
-        
+
         <div class="features">
             <div class="feature">
-                <div class="feature-icon">✓</div>
-                <span>Automatic OCR & AI categorization</span>
+                <div class="feature-icon">&#10003;</div>
+                <span>Upload & track receipts</span>
             </div>
             <div class="feature">
-                <div class="feature-icon">✓</div>
-                <span>WhatsApp receipt forwarding</span>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon">&#10003;</div>
                 <span>Malaysia tax relief tracking</span>
             </div>
             <div class="feature">
-                <div class="feature-icon">✓</div>
-                <span>Monthly AI insights</span>
+                <div class="feature-icon">&#10003;</div>
+                <span>View receipts anytime</span>
             </div>
         </div>
-        
-        <div class="install-prompt" id="install-prompt">
-            <p><strong>Install this app!</strong></p>
-            <p>Add to home screen for quick access</p>
-            <button class="btn btn-email" id="install-btn">Install App</button>
-        </div>
     </div>
-    
-    <script type="module" src="auth.js"></script>
+
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js');
-            });
+        // If user already selected, go straight to dashboard
+        if (localStorage.getItem('currentUser')) {
+            window.location.href = 'dashboard.html';
         }
+
+        document.getElementById('btn-sufian').addEventListener('click', () => {
+            localStorage.setItem('currentUser', 'sufian');
+            window.location.href = 'dashboard.html';
+        });
+
+        document.getElementById('btn-hanis').addEventListener('click', () => {
+            localStorage.setItem('currentUser', 'hanis');
+            window.location.href = 'dashboard.html';
+        });
     </script>
 </body>
 </html>

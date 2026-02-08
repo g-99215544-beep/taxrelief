@@ -1,8 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, collection, query, where, orderBy, limit, onSnapshot, addDoc, serverTimestamp, doc, getDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
-import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
+import { getFirestore, collection, query, where, orderBy, limit, onSnapshot, addDoc, serverTimestamp, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 const firebaseConfig = {
     apiKey: "AIzaSyD7WspCtCQ_pqlUUFbdlIdFa2OgU7yX73A",
@@ -14,46 +12,38 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-const functions = getFunctions(app);
 
-let currentUser = null;
+// Get current user from localStorage (set on index.html)
+const currentUser = localStorage.getItem('currentUser');
+if (!currentUser) {
+    window.location.href = 'index.html';
+}
 
-onAuthStateChanged(auth, (user) => {
-    const path = window.location.pathname;
-    const isLoginPage = path.endsWith('/') || path.endsWith('/index.html') || path.endsWith('/taxrelief/') || path.endsWith('/taxrelief');
-    if (!user && !isLoginPage) {
-        window.location.href = 'index.html';
-        return;
-    }
+// Show current user name in header
+const userNameEl = document.getElementById('current-user-name');
+if (userNameEl) {
+    userNameEl.textContent = currentUser.toUpperCase();
+}
 
-    currentUser = user;
-
-    if (user) {
-        initializePage();
-    }
-});
-
-const logoutBtn = document.getElementById('logout-btn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', async () => {
-        await signOut(auth);
+// Switch user button
+const switchUserBtn = document.getElementById('switch-user-btn');
+if (switchUserBtn) {
+    switchUserBtn.addEventListener('click', () => {
+        localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
     });
 }
 
-function initializePage() {
-    const path = window.location.pathname;
-
-    if (path.includes('dashboard.html')) {
-        loadDashboard();
-    } else if (path.includes('upload.html')) {
-        initializeUpload();
-    } else if (path.includes('insights.html')) {
-        loadInsights();
-    }
+// Initialize the right page
+const path = window.location.pathname;
+if (path.includes('dashboard.html')) {
+    loadDashboard();
+} else if (path.includes('upload.html')) {
+    initializeUpload();
+} else if (path.includes('insights.html')) {
+    loadInsights();
 }
 
 // ==================== DASHBOARD ====================
@@ -65,12 +55,12 @@ async function loadDashboard() {
     try {
         const receiptsQuery = query(
             collection(db, 'receipts'),
-            where('userId', '==', currentUser.uid),
+            where('userId', '==', currentUser),
             orderBy('createdAt', 'desc')
         );
 
         onSnapshot(receiptsQuery, (snapshot) => {
-            const receipts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const receipts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 
             const totalReceipts = receipts.length;
             const totalSpent = receipts.reduce((sum, r) => sum + (r.amount || 0), 0);
@@ -85,8 +75,6 @@ async function loadDashboard() {
             document.getElementById('tax-percentage').textContent = `${percentage}% of total`;
 
             renderReceiptGallery(receipts);
-            loadTaxSummary(new Date().getFullYear());
-            loadMonthlyInsights();
         }, (error) => {
             console.error('Error listening to receipts:', error);
             loading.innerHTML = '<p>Error loading receipts. Please refresh.</p>';
@@ -107,7 +95,7 @@ function renderReceiptGallery(receipts) {
 
     if (receipts.length === 0) {
         galleryContainer.innerHTML = `
-            <div style="text-align: center; color: #6b7280; padding: 2rem;">
+            <div style="text-align: center; color: #6b7280; padding: 2rem; grid-column: 1 / -1;">
                 <p style="font-size: 3rem; margin-bottom: 0.5rem;">📸</p>
                 <p>No receipts uploaded yet</p>
                 <a href="upload.html" style="color: #4F46E5; text-decoration: underline; margin-top: 0.5rem; display: inline-block;">Upload your first receipt</a>
@@ -118,12 +106,11 @@ function renderReceiptGallery(receipts) {
 
     galleryContainer.innerHTML = receipts.map(receipt => {
         const dateStr = receipt.date || formatTimestamp(receipt.createdAt);
-        const status = receipt.processedAt ? 'complete' : 'pending';
         const statusLabel = receipt.processedAt ? 'Processed' : 'Uploaded';
         const statusClass = receipt.processedAt ? 'status-complete' : 'status-processing';
 
         return `
-            <div class="receipt-card" onclick="window.openReceiptModal('${receipt.downloadURL || ''}', '${escapeHtml(receipt.merchant || 'Receipt')}')">
+            <div class="receipt-card" onclick="window.openReceiptModal('${receipt.downloadURL || ''}', '${escapeHtml(receipt.merchant || receipt.fileName || 'Receipt')}')">
                 <div class="receipt-thumb">
                     ${receipt.downloadURL
                         ? `<img src="${receipt.downloadURL}" alt="Receipt" loading="lazy">`
@@ -131,7 +118,7 @@ function renderReceiptGallery(receipts) {
                     }
                 </div>
                 <div class="receipt-details">
-                    <div class="receipt-merchant">${escapeHtml(receipt.merchant || 'Unprocessed Receipt')}</div>
+                    <div class="receipt-merchant">${escapeHtml(receipt.merchant || receipt.fileName || 'Receipt')}</div>
                     <div class="receipt-amount">${receipt.amount ? `RM ${receipt.amount.toFixed(2)}` : '--'}</div>
                     <div class="receipt-date">${dateStr}</div>
                     ${receipt.predictedCategory ? `<span class="receipt-category">${escapeHtml(receipt.predictedCategory)}</span>` : ''}
@@ -154,7 +141,7 @@ function formatTimestamp(timestamp) {
     return date.toLocaleDateString('en-MY', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-// Make openReceiptModal available globally
+// Image modal viewer
 window.openReceiptModal = function(imageUrl, title) {
     if (!imageUrl) return;
 
@@ -194,66 +181,6 @@ window.openReceiptModal = function(imageUrl, title) {
     document.getElementById('modal-image').src = imageUrl;
     modal.style.display = 'block';
 };
-
-async function loadTaxSummary(year) {
-    try {
-        const summaryDoc = await getDoc(doc(db, 'tax_summary', `${currentUser.uid}_${year}`));
-
-        if (summaryDoc.exists()) {
-            const data = summaryDoc.data();
-            const totalClaimable = data.totalClaimable || 0;
-            document.getElementById('total-claimable').textContent = `RM ${totalClaimable.toFixed(2)}`;
-        }
-    } catch (error) {
-        console.error('Error loading tax summary:', error);
-    }
-}
-
-async function loadMonthlyInsights() {
-    try {
-        const now = new Date();
-        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-        const insightsDoc = await getDoc(doc(db, 'monthly_insights', `${currentUser.uid}_${monthKey}`));
-
-        if (insightsDoc.exists()) {
-            const data = insightsDoc.data();
-            renderInsights(data);
-            renderAlerts(data);
-        }
-    } catch (error) {
-        console.error('Error loading insights:', error);
-    }
-}
-
-function renderInsights(data) {
-    const insightsList = document.getElementById('insights-list');
-
-    if (!data.recommendations || data.recommendations.length === 0) {
-        return;
-    }
-
-    insightsList.innerHTML = data.recommendations.map(rec => `
-        <li class="insight-item">
-            <div class="insight-title">${rec.type.replace(/_/g, ' ')}</div>
-            <div class="insight-text">${rec.message}</div>
-        </li>
-    `).join('');
-}
-
-function renderAlerts(data) {
-    const alertsList = document.getElementById('alerts-list');
-
-    if (!data.alerts || data.alerts.length === 0) {
-        return;
-    }
-
-    alertsList.innerHTML = data.alerts.map(alert => `
-        <li class="alert-item alert-${alert.severity.toLowerCase()}">
-            ${alert.message}
-        </li>
-    `).join('');
-}
 
 // ==================== UPLOAD ====================
 
@@ -346,7 +273,7 @@ function initializeUpload() {
                 progressFill.style.width = `${progress}%`;
 
                 const receiptId = `${Date.now()}_${i}`;
-                const storagePath = `receipts/${currentUser.uid}/${receiptId}`;
+                const storagePath = `receipts/${currentUser}/${receiptId}`;
                 const storageRef = ref(storage, storagePath);
 
                 await uploadBytes(storageRef, file, {
@@ -355,7 +282,7 @@ function initializeUpload() {
                 const downloadURL = await getDownloadURL(storageRef);
 
                 await addDoc(collection(db, 'receipts'), {
-                    userId: currentUser.uid,
+                    userId: currentUser,
                     storageUrl: `gs://${firebaseConfig.storageBucket}/${storagePath}`,
                     downloadURL: downloadURL,
                     fileName: file.name,
@@ -398,7 +325,7 @@ async function loadRecentUploads() {
     try {
         const receiptsQuery = query(
             collection(db, 'receipts'),
-            where('userId', '==', currentUser.uid),
+            where('userId', '==', currentUser),
             orderBy('createdAt', 'desc'),
             limit(10)
         );
@@ -423,7 +350,7 @@ async function loadRecentUploads() {
                             }
                         </div>
                         <div class="upload-info">
-                            <div class="upload-name">${escapeHtml(data.merchant || data.fileName || 'Processing...')}</div>
+                            <div class="upload-name">${escapeHtml(data.merchant || data.fileName || 'Receipt')}</div>
                             <div class="upload-meta">
                                 ${data.amount ? `RM ${data.amount.toFixed(2)}` : ''}
                                 ${dateStr}
@@ -454,7 +381,7 @@ async function loadInsights() {
 
     try {
         const year = new Date().getFullYear();
-        const summaryDoc = await getDoc(doc(db, 'tax_summary', `${currentUser.uid}_${year}`));
+        const summaryDoc = await getDoc(doc(db, 'tax_summary', `${currentUser}_${year}`));
 
         if (summaryDoc.exists()) {
             const data = summaryDoc.data();
@@ -465,7 +392,7 @@ async function loadInsights() {
 
         const now = new Date();
         const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        const insightsDoc = await getDoc(doc(db, 'monthly_insights', `${currentUser.uid}_${monthKey}`));
+        const insightsDoc = await getDoc(doc(db, 'monthly_insights', `${currentUser}_${monthKey}`));
 
         if (insightsDoc.exists()) {
             const data = insightsDoc.data();
@@ -551,40 +478,5 @@ function renderRecommendations(data, container) {
 }
 
 async function exportData(format) {
-    try {
-        const year = new Date().getFullYear();
-        const exportReceipts = httpsCallable(functions, 'exportReceipts');
-
-        const result = await exportReceipts({ format, year });
-
-        const blob = base64ToBlob(result.data.data, result.data.contentType);
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `receipts_${year}.${format === 'csv' ? 'csv' : 'xlsx'}`;
-        a.click();
-        URL.revokeObjectURL(url);
-
-    } catch (error) {
-        console.error('Export error:', error);
-        alert('Export failed: ' + error.message);
-    }
+    alert('Export requires Cloud Functions to be deployed. Upload receipts first!');
 }
-
-function base64ToBlob(base64, contentType) {
-    const byteCharacters = atob(base64);
-    const byteArrays = [];
-
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-        const slice = byteCharacters.slice(offset, offset + 512);
-        const byteNumbers = new Array(slice.length);
-        for (let i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i);
-        }
-        byteArrays.push(new Uint8Array(byteNumbers));
-    }
-
-    return new Blob(byteArrays, { type: contentType });
-}
-
-export { auth, db, storage, functions };
